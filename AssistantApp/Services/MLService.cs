@@ -1,6 +1,7 @@
-﻿using AssistantApp.Data;
+using AssistantApp.Data;
 using AssistantApp.Models;
 using Microsoft.ML;
+using Microsoft.ML.Data;
 using System.IO;
 
 namespace AssistantApp.Services
@@ -99,7 +100,10 @@ namespace AssistantApp.Services
                 if (_symptomIndexMap.TryGetValue(id, out var idx))
                     featureVector[idx] = 1f;
             }
-            var engine = _mlContext.Model.CreatePredictionEngine<ModelInput, ModelOutput>(_trainedModel);
+            var schemaDef = SchemaDefinition.Create(typeof(ModelInput));
+            schemaDef[nameof(ModelInput.Features)].ColumnType =
+                new VectorDataViewType(NumberDataViewType.Single, _symptomIndexMap.Count);
+            var engine = _mlContext.Model.CreatePredictionEngine<ModelInput, ModelOutput>(_trainedModel, inputSchemaDefinition: schemaDef);
             var input = new ModelInput { Features = featureVector };
             var output = engine.Predict(input);
             return output.PredictedLabel;
