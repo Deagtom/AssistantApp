@@ -9,6 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Data\training_data_large.csv" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Data\training_data_large.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.ML" Version="4.0.2" />
     <PackageReference Include="Microsoft.ML.DataView" Version="4.0.2" />
     <PackageReference Include="Npgsql" Version="9.0.3" />

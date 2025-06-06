@@ -1,8 +1,14 @@
 ﻿using Microsoft.ML.Data;
 
-public class ModelInput
+namespace AssistantApp.Models
 {
-    [VectorType]
-    public float[] Features { get; set; }
-    public string Label { get; set; }
+    public class ModelInput
+    {
+        [LoadColumn(0, 9)]
+        [VectorType(10)]
+        public float[] Features { get; set; }
+
+        [LoadColumn(10)]
+        public string Label { get; set; }
+    }
 }

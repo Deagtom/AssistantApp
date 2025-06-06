@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using AssistantApp.Data;
+using AssistantApp.ViewModels;
+using System.Configuration;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -19,6 +22,9 @@ namespace AssistantApp
         public MainWindow()
         {
             InitializeComponent();
+            var conn = ConfigurationManager.ConnectionStrings["PostgresConnection"].ConnectionString;
+            DataContext = new SymptomSelectionViewModel(new DatabaseService(conn));
+            ((SymptomSelectionViewModel)DataContext).LoadDataCommand.Execute(null);
         }
     }
 }

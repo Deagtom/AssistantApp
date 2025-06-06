@@ -11,16 +11,14 @@ namespace AssistantApp.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            var selectedSymptoms = values[0] as ObservableCollection<Symptom>;
-            var currentSymptom = values[1] as Symptom;
-            if (selectedSymptoms == null || currentSymptom == null)
+            var selected = values[0] as ObservableCollection<Symptom>;
+            var current = values[1] as Symptom;
+            if (selected == null || current == null)
                 return false;
-            return selectedSymptoms.Any(s => s.Id == currentSymptom.Id);
+            return selected.Any(s => s.Id == current.Id);
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+            => throw new NotImplementedException();
     }
 }
