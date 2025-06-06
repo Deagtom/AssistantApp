@@ -1,6 +1,8 @@
 ﻿using AssistantApp.Data;
 using AssistantApp.Models;
 using System.Collections.ObjectModel;
+using AssistantApp.Services;
+using System.Linq;
 using System.Windows.Input;
 
 namespace AssistantApp.ViewModels
@@ -8,6 +10,7 @@ namespace AssistantApp.ViewModels
     public class SymptomSelectionViewModel : BaseViewModel
     {
         private readonly DatabaseService _dbService;
+        private readonly MLService _mlService;
 
         public ObservableCollection<SymptomCategory> Categories { get; } = new ObservableCollection<SymptomCategory>();
         public ObservableCollection<Symptom> Symptoms { get; } = new ObservableCollection<Symptom>();
@@ -16,12 +19,16 @@ namespace AssistantApp.ViewModels
         public Diagnosis SelectedDiagnosis { get; set; }
         public ICommand LoadDataCommand { get; }
         public ICommand SaveUsageCommand { get; }
-
-        public SymptomSelectionViewModel(DatabaseService dbService)
+        public ICommand TrainModelCommand { get; }
+        public ICommand PredictCommand { get; }
+        public SymptomSelectionViewModel(DatabaseService dbService, MLService mlService)
         {
             _dbService = dbService;
+            _mlService = mlService;
             LoadDataCommand = new RelayCommand(async _ => await LoadDataAsync());
             SaveUsageCommand = new RelayCommand(async _ => await SaveUsageAsync());
+            TrainModelCommand = new RelayCommand(async _ => await TrainModelAsync());
+            PredictCommand = new RelayCommand(async _ => await PredictAsync());
         }
 
         private async Task LoadDataAsync()
@@ -53,6 +60,22 @@ namespace AssistantApp.ViewModels
             var symptomIds = SelectedSymptoms.Select(s => s.Id).ToList();
             int? diagId = SelectedDiagnosis?.Id;
             await _dbService.SaveUsageRecordAsync(symptomIds, diagId);
+        }
+
+        private async Task TrainModelAsync()
+        {
+            await _mlService.TrainModelAsync();
+        }
+
+        private async Task PredictAsync()
+        {
+            var symptomIds = SelectedSymptoms.Select(s => s.Id).ToList();
+            var result = await _mlService.PredictDiagnosisAsync(symptomIds);
+            if (result != null)
+            {
+                SelectedDiagnosis = Diagnoses.FirstOrDefault(d => d.Name == result);
+                OnPropertyChanged(nameof(SelectedDiagnosis));
+            }
         }
     }
 }

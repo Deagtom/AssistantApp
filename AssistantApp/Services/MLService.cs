@@ -29,23 +29,43 @@ namespace AssistantApp.Services
             _diagnosisNameMap = diagnoses.ToDictionary(d => d.Id, d => d.Name);
         }
 
+        private const string DatasetFileName = "Data/diagnosis_dataset.csv";
+
         public async Task TrainModelAsync()
         {
             await InitializeMappingsAsync();
-            var records = await _dbService.GetUsageRecordsAsync();
+            if (!File.Exists(DatasetFileName))
+                throw new FileNotFoundException($"Dataset file not found: {DatasetFileName}");
+
             var inputs = new List<ModelInput>();
-            foreach (var record in records.Where(r => r.DiagnosisId.HasValue))
+            var lines = await File.ReadAllLinesAsync(DatasetFileName);
+            foreach (var line in lines.Skip(1)) // skip header
             {
-                var symptomList = await _dbService.GetSymptomsByUsageIdAsync(record.Id);
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                var parts = line.Split(',');
+                if (parts.Length < 2)
+                    continue;
+
+                var symptomIds = parts[0]
+                    .Split(';', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(id => int.TryParse(id, out var val) ? val : (int?)null)
+                    .Where(id => id.HasValue)
+                    .Select(id => id.Value);
                 var featureVector = new float[_symptomIndexMap.Count];
-                foreach (var symptom in symptomList)
+                foreach (var id in symptomIds)
                 {
-                    if (_symptomIndexMap.TryGetValue(symptom.Id, out var idx))
+                    if (_symptomIndexMap.TryGetValue(id, out var idx))
                         featureVector[idx] = 1f;
                 }
-                var label = _diagnosisNameMap[record.DiagnosisId.Value];
+
+                if (!int.TryParse(parts[1], out var diagId) || !_diagnosisNameMap.TryGetValue(diagId, out var label))
+                    continue;
+
                 inputs.Add(new ModelInput { Features = featureVector, Label = label });
             }
+
             var data = _mlContext.Data.LoadFromEnumerable(inputs);
             var pipeline = _mlContext.Transforms.Conversion.MapValueToKey("Label")
                            .Append(_mlContext.Transforms.Concatenate("Features", nameof(ModelInput.Features)))

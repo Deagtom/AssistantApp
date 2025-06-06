@@ -3,6 +3,7 @@ using System.Windows;
 using AssistantApp.Data;
 using AssistantApp.ViewModels;
 using AssistantApp.Views;
+using AssistantApp.Services;
 
 namespace AssistantApp
 {
@@ -13,7 +14,8 @@ namespace AssistantApp
             base.OnStartup(e);
             string connString = ConfigurationManager.ConnectionStrings["PostgresConnection"].ConnectionString;
             var dbService = new DatabaseService(connString);
-            var viewModel = new SymptomSelectionViewModel(dbService);
+            var mlService = new MLService(dbService);
+            var viewModel = new SymptomSelectionViewModel(dbService, mlService);
             var mainWindow = new SymptomSelectionView { DataContext = viewModel };
             mainWindow.Show();
             viewModel.LoadDataCommand.Execute(null);

@@ -14,4 +14,10 @@
     <PackageReference Include="Npgsql" Version="9.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Data/diagnosis_dataset.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
