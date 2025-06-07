@@ -2,52 +2,160 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:conv="clr-namespace:AssistantApp.Converters"
-        Title="Symptom Assistant" Height="550" Width="800">
-    <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-            <Button Content="Обучить" Command="{Binding TrainModelCommand}" Margin="0,0,10,0"/>
-            <Button Content="Предсказать" Command="{Binding PredictCommand}" Margin="0,0,10,0"/>
-            <Button Content="Сохранить" Command="{Binding SaveUsageCommand}"/>
+        Title="Symptom Assistant" Height="700" Width="1100" WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource WindowBackground}">
+    <Window.Resources>
+        <LinearGradientBrush x:Key="WindowBackground" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FFF4F6FA" Offset="0"/>
+            <GradientStop Color="#FFE3E8F0" Offset="1"/>
+        </LinearGradientBrush>
+        <SolidColorBrush x:Key="SidebarBackground" Color="#FFFFFFFF"/>
+        <SolidColorBrush x:Key="PanelBackground" Color="#FFFFFFFF"/>
+        <Color x:Key="AccentColor">#FF5C6BC0</Color>
+        <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
+        <SolidColorBrush x:Key="TextBrush" Color="#FF333333"/>
+        <Style TargetType="Button">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Background" Value="{StaticResource PanelBackground}"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style x:Key="NavButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Margin" Value="0,4,0,4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Background="{StaticResource SidebarBackground}" Grid.Column="0" Margin="10">
+            <TextBlock Text="Меню" FontSize="18" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,20" HorizontalAlignment="Center"/>
+            <Button Style="{StaticResource NavButtonStyle}" Content="Диагностика" Click="NavButton_Click" Tag="0"/>
+            <Button Style="{StaticResource NavButtonStyle}" Content="История" Click="NavButton_Click" Tag="1"/>
+            <Button Style="{StaticResource NavButtonStyle}" Content="Админка" Click="NavButton_Click" Tag="2"/>
+            <Button Style="{StaticResource NavButtonStyle}" Content="Настройки" Click="NavButton_Click" Tag="3"/>
         </StackPanel>
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="3*"/>
-                <ColumnDefinition Width="2*"/>
-            </Grid.ColumnDefinitions>
-            <GroupBox Header="Симптомы" Grid.Column="0" Margin="0,0,10,0">
+        <TabControl x:Name="MainTabControl" Grid.Column="1">
+            <TabItem>
                 <ScrollViewer>
-                    <TreeView ItemsSource="{Binding Categories}">
-                        <TreeView.ItemTemplate>
-                            <HierarchicalDataTemplate ItemsSource="{Binding Symptoms}">
-                                <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
-                                <HierarchicalDataTemplate.ItemTemplate>
-                                    <DataTemplate>
-                                        <CheckBox Content="{Binding Name}">
-                                            <CheckBox.IsChecked>
-                                                <MultiBinding Converter="{StaticResource SymptomSelectionMultiConverter}" Mode="OneWay">
-                                                    <Binding Path="DataContext.SelectedSymptoms" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                                    <Binding/>
-                                                </MultiBinding>
-                                            </CheckBox.IsChecked>
-                                        </CheckBox>
-                                    </DataTemplate>
-                                </HierarchicalDataTemplate.ItemTemplate>
-                            </HierarchicalDataTemplate>
-                        </TreeView.ItemTemplate>
-                    </TreeView>
+                    <Grid Margin="20">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Диагностика" FontSize="24" Foreground="{StaticResource AccentBrush}"/>
+                        <Grid Grid.Row="1" Margin="0,20,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Background="{StaticResource PanelBackground}" CornerRadius="8" Padding="12">
+                                <StackPanel>
+                                    <TextBlock Text="Выберите симптомы" FontSize="18" Foreground="{StaticResource AccentBrush}"/>
+                                    <TreeView ItemsSource="{Binding Categories}" Margin="0,10,0,0">
+                                        <TreeView.ItemTemplate>
+                                            <HierarchicalDataTemplate ItemsSource="{Binding Symptoms}">
+                                                <TextBlock Text="{Binding Name}" FontWeight="Bold"/>
+                                                <HierarchicalDataTemplate.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <CheckBox Content="{Binding Name}" Command="{Binding DataContext.ToggleSymptomCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}">
+                                                            <CheckBox.IsChecked>
+                                                                <MultiBinding Mode="OneWay" Converter="{StaticResource SymptomSelectionMultiConverter}">
+                                                                    <Binding Path="DataContext.SelectedSymptoms" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                                    <Binding/>
+                                                                </MultiBinding>
+                                                            </CheckBox.IsChecked>
+                                                        </CheckBox>
+                                                    </DataTemplate>
+                                                </HierarchicalDataTemplate.ItemTemplate>
+                                            </HierarchicalDataTemplate>
+                                        </TreeView.ItemTemplate>
+                                    </TreeView>
+                                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="Интенсивность боли:" VerticalAlignment="Center"/>
+                                        <Slider Minimum="0" Maximum="10" Value="5" Width="150" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,10,0,0">
+                                        <TextBlock Text="Свободный ввод жалоб" FontSize="18" Foreground="{StaticResource AccentBrush}"/>
+                                        <TextBox Height="60" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                    </StackPanel>
+                                    <Button Content="Предсказать" Margin="0,20,0,0" Command="{Binding PredictCommand}"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="{StaticResource PanelBackground}" CornerRadius="8" Padding="12" Margin="20,0,0,0" Grid.Column="1">
+                                <StackPanel>
+                                    <TextBlock Text="Результаты" FontSize="18" Foreground="{StaticResource AccentBrush}"/>
+                                    <ComboBox ItemsSource="{Binding Diagnoses}" SelectedItem="{Binding SelectedDiagnosis}" DisplayMemberPath="Name" Margin="0,10,0,0"/>
+                                    <TextBlock Text="{Binding SelectedDiagnosis.Description}" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                                    <Button Content="Сохранить" Margin="0,20,0,0" Command="{Binding SaveUsageCommand}"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Grid>
                 </ScrollViewer>
-            </GroupBox>
-            <StackPanel Grid.Column="1">
-                <TextBlock Text="Диагноз:" Margin="0,0,0,5" FontWeight="Bold"/>
-                <ComboBox ItemsSource="{Binding Diagnoses}"
-                  SelectedItem="{Binding SelectedDiagnosis}"
-                  DisplayMemberPath="Name"
-                  Margin="0,0,0,20"/>
-            </StackPanel>
-        </Grid>
+            </TabItem>
+            <TabItem>
+                <ScrollViewer>
+                    <StackPanel Margin="20">
+                        <TextBlock Text="История обращений" FontSize="24" Foreground="{StaticResource AccentBrush}"/>
+                        <DataGrid AutoGenerateColumns="False" Margin="0,20,0,0" ItemsSource="{Binding UsageRecords}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Дата" Binding="{Binding EventTime}"/>
+                                <DataGridTextColumn Header="Симптомы" Binding="{Binding Symptoms}"/>
+                                <DataGridTextColumn Header="Результат" Binding="{Binding ResultName}"/>
+                                <DataGridTemplateColumn>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="PDF" Command="{Binding ExportCommand}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem>
+                <ScrollViewer>
+                    <StackPanel Margin="20">
+                        <TextBlock Text="Админка" FontSize="24" Foreground="{StaticResource AccentBrush}"/>
+                        <Button Content="Загрузить симптомы" Command="{Binding LoadDataCommand}" Margin="0,20,0,0"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem>
+                <ScrollViewer>
+                    <StackPanel Margin="20">
+                        <TextBlock Text="Настройки" FontSize="24" Foreground="{StaticResource AccentBrush}"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,20,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Тема" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <ComboBox SelectedIndex="{Binding ThemeIndex}" Width="120">
+                                <ComboBoxItem>Светлая</ComboBoxItem>
+                                <ComboBoxItem>Тёмная</ComboBoxItem>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Язык" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <ComboBox SelectedIndex="{Binding LanguageIndex}" Width="120">
+                                <ComboBoxItem>Русский</ComboBoxItem>
+                                <ComboBoxItem>English</ComboBoxItem>
+                            </ComboBox>
+                        </StackPanel>
+                        <Button Content="Сохранить настройки" Command="{Binding SaveSettingsCommand}" Margin="0,20,0,0"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>

@@ -20,6 +20,7 @@ namespace AssistantApp.ViewModels
         public ICommand TrainModelCommand { get; }
         public ICommand PredictCommand { get; }
         public ICommand SaveUsageCommand { get; }
+        public ICommand ToggleSymptomCommand { get; }
 
         public SymptomSelectionViewModel(DatabaseService dbService)
         {
@@ -29,6 +30,7 @@ namespace AssistantApp.ViewModels
             TrainModelCommand = new RelayCommand(async _ => await _mlService.TrainModelAsync());
             PredictCommand = new RelayCommand(_ => PredictDiagnosis());
             SaveUsageCommand = new RelayCommand(async _ => await SaveUsageAsync());
+            ToggleSymptomCommand = new RelayCommand(sym => ToggleSymptom(sym as Symptom));
         }
 
         private async Task LoadDataAsync()
@@ -69,6 +71,18 @@ namespace AssistantApp.ViewModels
             var ids = SelectedSymptoms.Select(s => s.Id).ToList();
             int? diagId = SelectedDiagnosis?.Id;
             await _dbService.SaveUsageRecordAsync(ids, diagId);
+        }
+
+        private void ToggleSymptom(Symptom symptom)
+        {
+            if (symptom == null)
+                return;
+
+            var existing = SelectedSymptoms.FirstOrDefault(s => s.Id == symptom.Id);
+            if (existing != null)
+                SelectedSymptoms.Remove(existing);
+            else
+                SelectedSymptoms.Add(symptom);
         }
     }
 }
