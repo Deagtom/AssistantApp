@@ -1,8 +1,6 @@
-﻿using System.IO;
-using System.Threading.Tasks;
-using AssistantApp.Models;
+﻿using AssistantApp.Models;
 using Microsoft.ML;
-using Microsoft.ML.Data;
+using System.IO;
 
 namespace AssistantApp.Services
 {
@@ -11,32 +9,34 @@ namespace AssistantApp.Services
         private readonly MLContext _mlContext;
         private ITransformer _model;
         private const string ModelFile = "DiagnosisModel.zip";
-        private const string CsvFile = "Data/training_data_large.csv";
+        private static readonly string CsvFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "training_data.csv");
 
         public MLService()
         {
             _mlContext = new MLContext(seed: 0);
         }
 
-        public Task TrainModelAsync()
+        public async Task TrainModelAsync()
         {
-            var data = _mlContext.Data.LoadFromTextFile<ModelInput>(
+            var dataView = _mlContext.Data.LoadFromTextFile<ModelInput>(
                 path: CsvFile,
                 hasHeader: true,
                 separatorChar: ',');
 
-            var pipeline = _mlContext.Transforms.Conversion.MapValueToKey(nameof(ModelInput.Label))
-                .Append(_mlContext.Transforms.NormalizeMinMax(nameof(ModelInput.Features)))
-                .Append(_mlContext.MulticlassClassification.Trainers
-                    .SdcaMaximumEntropy(labelColumnName: nameof(ModelInput.Label), featureColumnName: nameof(ModelInput.Features)))
-                .Append(_mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"));
+            var pipeline = _mlContext.Transforms.Conversion.MapValueToKey(
+                                outputColumnName: "LabelKey",
+                                inputColumnName: nameof(ModelInput.Label))
+                .Append(_mlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy(
+                                labelColumnName: "LabelKey",
+                                featureColumnName: nameof(ModelInput.Features)))
+                .Append(_mlContext.Transforms.Conversion.MapKeyToValue(
+                                outputColumnName: "PredictedLabel",
+                                inputColumnName: "PredictedLabel"));
 
-            _model = pipeline.Fit(data);
+            _model = pipeline.Fit(dataView);
 
             using var fs = new FileStream(ModelFile, FileMode.Create, FileAccess.Write, FileShare.Write);
-            _mlContext.Model.Save(_model, data.Schema, fs);
-
-            return Task.CompletedTask;
+            _mlContext.Model.Save(_model, dataView.Schema, fs);
         }
 
         public bool LoadModel()

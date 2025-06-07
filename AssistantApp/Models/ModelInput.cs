@@ -4,11 +4,12 @@ namespace AssistantApp.Models
 {
     public class ModelInput
     {
-        [LoadColumn(0, 9)]
-        [VectorType(10)]
+        [LoadColumn(0, 24)]
+        [VectorType(25)]
         public float[] Features { get; set; }
 
-        [LoadColumn(10)]
+        [LoadColumn(25)]
+        [ColumnName("Label")]
         public string Label { get; set; }
     }
 }

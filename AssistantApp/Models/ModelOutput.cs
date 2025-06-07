@@ -6,7 +6,5 @@ namespace AssistantApp.Models
     {
         [ColumnName("PredictedLabel")]
         public string PredictedLabel { get; set; }
-
-        public float[] Score { get; set; }
     }
 }

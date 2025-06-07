@@ -1,8 +1,11 @@
-﻿using AssistantApp.Data;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using AssistantApp.Data;
 using AssistantApp.Models;
 using AssistantApp.Services;
-using System.Collections.ObjectModel;
-using System.Windows.Input;
 
 namespace AssistantApp.ViewModels
 {
@@ -15,6 +18,19 @@ namespace AssistantApp.ViewModels
         public ObservableCollection<Symptom> SelectedSymptoms { get; } = new ObservableCollection<Symptom>();
         public ObservableCollection<Diagnosis> Diagnoses { get; } = new ObservableCollection<Diagnosis>();
         public ObservableCollection<UsageRecordViewModel> UsageRecords { get; } = new ObservableCollection<UsageRecordViewModel>();
+        public ObservableCollection<string> Languages { get; } = new ObservableCollection<string> { "Русский", "English" };
+
+        private string _selectedLanguage;
+        public string SelectedLanguage
+        {
+            get => _selectedLanguage;
+            set
+            {
+                _selectedLanguage = value;
+                OnPropertyChanged(nameof(SelectedLanguage));
+            }
+        }
+
         public Diagnosis SelectedDiagnosis { get; set; }
 
         public ICommand LoadDataCommand { get; }
@@ -32,6 +48,7 @@ namespace AssistantApp.ViewModels
             PredictCommand = new RelayCommand(_ => PredictDiagnosis());
             SaveUsageCommand = new RelayCommand(async _ => await SaveUsageAsync());
             ToggleSymptomCommand = new RelayCommand(sym => ToggleSymptom(sym as Symptom));
+            SelectedLanguage = Languages.First();
         }
 
         private async Task LoadDataAsync()
@@ -111,7 +128,7 @@ namespace AssistantApp.ViewModels
             EventTime = eventTime;
             Symptoms = symptoms;
             ResultName = resultName;
-            ExportCommand = new RelayCommand(_ => { /* экспорт в PDF */ });
+            ExportCommand = new RelayCommand(_ => { });
         }
     }
 }

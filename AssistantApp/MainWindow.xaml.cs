@@ -14,7 +14,6 @@ namespace AssistantApp
             var conn = ConfigurationManager.ConnectionStrings["PostgresConnection"].ConnectionString;
             DataContext = new SymptomSelectionViewModel(new DatabaseService(conn));
             ((SymptomSelectionViewModel)DataContext).LoadDataCommand.Execute(null);
-
         }
 
         private void NavButton_Click(object sender, RoutedEventArgs e)
