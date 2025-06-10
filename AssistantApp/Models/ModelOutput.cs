@@ -6,5 +6,8 @@ namespace AssistantApp.Models
     {
         [ColumnName("PredictedLabel")]
         public string PredictedLabel { get; set; }
+
+        [ColumnName("Score")]
+        public float[] Score { get; set; }
     }
 }

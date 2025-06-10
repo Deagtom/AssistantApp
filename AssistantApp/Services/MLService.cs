@@ -1,5 +1,6 @@
 ﻿using AssistantApp.Models;
 using Microsoft.ML;
+using System;
 using System.IO;
 
 namespace AssistantApp.Services
@@ -16,49 +17,45 @@ namespace AssistantApp.Services
             _mlContext = new MLContext(seed: 0);
         }
 
-        public async Task TrainModelAsync()
+        private bool LoadModel()
         {
-            var dataView = _mlContext.Data.LoadFromTextFile<ModelInput>(
-                path: CsvFile,
-                hasHeader: true,
-                separatorChar: ',');
-
-            var pipeline = _mlContext.Transforms.Conversion.MapValueToKey(
-                                outputColumnName: "LabelKey",
-                                inputColumnName: nameof(ModelInput.Label))
-                .Append(_mlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy(
-                                labelColumnName: "LabelKey",
-                                featureColumnName: nameof(ModelInput.Features)))
-                .Append(_mlContext.Transforms.Conversion.MapKeyToValue(
-                                outputColumnName: "PredictedLabel",
-                                inputColumnName: "PredictedLabel"));
-
-            _model = pipeline.Fit(dataView);
-
-            using var fs = new FileStream(ModelFile, FileMode.Create, FileAccess.Write, FileShare.Write);
-            _mlContext.Model.Save(_model, dataView.Schema, fs);
+            if (!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ModelFile)))
+                return false;
+            _model = _mlContext.Model.Load(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ModelFile), out _);
+            return true;
         }
 
-        public bool LoadModel()
+        public async Task TrainModelAsync()
         {
-            if (!File.Exists(ModelFile))
-                return false;
-
-            DataViewSchema schema;
-            using var fs = new FileStream(ModelFile, FileMode.Open, FileAccess.Read, FileShare.Read);
-            _model = _mlContext.Model.Load(fs, out schema);
-            return true;
+            var data = _mlContext.Data.LoadFromTextFile<ModelInput>(CsvFile, hasHeader: true, separatorChar: ',');
+            var pipeline = _mlContext.Transforms.Concatenate("Features", nameof(ModelInput.Features))
+                           .Append(_mlContext.Transforms.Conversion.MapValueToKey("Label", nameof(ModelInput.Label)))
+                           .Append(_mlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy())
+                           .Append(_mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"));
+            var model = pipeline.Fit(data);
+            using (var fs = File.Create(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ModelFile)))
+                _mlContext.Model.Save(model, data.Schema, fs);
+            _model = model;
         }
 
         public string PredictDiagnosis(float[] featureVector)
         {
             if (_model == null && !LoadModel())
                 return null;
-
             var engine = _mlContext.Model.CreatePredictionEngine<ModelInput, ModelOutput>(_model);
             var input = new ModelInput { Features = featureVector };
             var output = engine.Predict(input);
             return output.PredictedLabel;
+        }
+
+        public float[] PredictProbabilities(float[] featureVector)
+        {
+            if (_model == null && !LoadModel())
+                return Array.Empty<float>();
+            var engine = _mlContext.Model.CreatePredictionEngine<ModelInput, ModelOutput>(_model);
+            var input = new ModelInput { Features = featureVector };
+            var output = engine.Predict(input);
+            return output.Score;
         }
     }
 }
