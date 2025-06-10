@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -13,6 +14,69 @@ namespace AssistantApp.ViewModels
     {
         private readonly DatabaseService _dbService;
         private readonly MLService _mlService;
+
+        private bool _isTextMode;
+        public bool IsTextMode
+        {
+            get => _isTextMode;
+            set
+            {
+                _isTextMode = value;
+                OnPropertyChanged(nameof(IsTextMode));
+                OnPropertyChanged(nameof(IsListMode));
+            }
+        }
+
+        public bool IsListMode
+        {
+            get => !_isTextMode;
+            set
+            {
+                _isTextMode = !value;
+                OnPropertyChanged(nameof(IsTextMode));
+                OnPropertyChanged(nameof(IsListMode));
+            }
+        }
+
+        private string _complaintText;
+        public string ComplaintText
+        {
+            get => _complaintText;
+            set
+            {
+                _complaintText = value;
+                OnPropertyChanged(nameof(ComplaintText));
+            }
+        }
+
+        private static readonly Dictionary<string, string> SymptomTranslations = new()
+        {
+            { "Chest pain", "Боль в груди" },
+            { "Abdominal pain", "Боль в животе" },
+            { "Joint pain", "Боль в суставах" },
+            { "Back pain", "Боль в спине" },
+            { "Nausea", "Тошнота" },
+            { "Diarrhea", "Диарея" },
+            { "Vomiting", "Рвота" },
+            { "Loss of appetite", "Потеря аппетита" },
+            { "Dizziness", "Головокружение" },
+            { "Palpitations", "Сердцебиение" },
+            { "Headache", "Головная боль" },
+            { "Muscle weakness", "Слабость мышц" },
+            { "Blurred vision", "Затуманенное зрение" },
+            { "Fatigue", "Усталость" },
+            { "Sleepiness", "Сонливость" },
+            { "Fever", "Лихорадка" },
+            { "Cough", "Кашель" },
+            { "Shortness of breath", "Одышка" },
+            { "Rash", "Сыпь" },
+            { "Swelling", "Отёк" },
+            { "Itching", "Зуд" },
+            { "Chills", "Озноб" },
+            { "Sore throat", "Боль в горле" },
+            { "Weight loss", "Похудение" },
+            { "Excessive thirst", "Чрезмерная жажда" }
+        };
 
         public ObservableCollection<SymptomCategory> Categories { get; } = new ObservableCollection<SymptomCategory>();
         public ObservableCollection<Symptom> SelectedSymptoms { get; } = new ObservableCollection<Symptom>();
@@ -49,6 +113,8 @@ namespace AssistantApp.ViewModels
             SaveUsageCommand = new RelayCommand(async _ => await SaveUsageAsync());
             ToggleSymptomCommand = new RelayCommand(sym => ToggleSymptom(sym as Symptom));
             SelectedLanguage = Languages.First();
+            IsTextMode = false;
+            ComplaintText = string.Empty;
         }
 
         private async Task LoadDataAsync()
@@ -82,6 +148,9 @@ namespace AssistantApp.ViewModels
 
         private void PredictDiagnosis()
         {
+            if (IsTextMode)
+                ParseSymptomsFromText();
+
             var vector = Categories
                 .SelectMany(c => c.Symptoms)
                 .Select(s => SelectedSymptoms.Any(ss => ss.Id == s.Id) ? 1f : 0f)
@@ -111,6 +180,28 @@ namespace AssistantApp.ViewModels
                 SelectedSymptoms.Remove(existing);
             else
                 SelectedSymptoms.Add(symptom);
+        }
+
+        private void ParseSymptomsFromText()
+        {
+            SelectedSymptoms.Clear();
+            if (string.IsNullOrWhiteSpace(ComplaintText))
+                return;
+
+            var text = ComplaintText.ToLowerInvariant();
+            foreach (var category in Categories)
+            {
+                foreach (var symptom in category.Symptoms)
+                {
+                    var en = symptom.Name.ToLowerInvariant();
+                    var ru = SymptomTranslations.ContainsKey(symptom.Name)
+                        ? SymptomTranslations[symptom.Name].ToLowerInvariant()
+                        : string.Empty;
+
+                    if (text.Contains(en) || (!string.IsNullOrEmpty(ru) && text.Contains(ru)))
+                        SelectedSymptoms.Add(symptom);
+                }
+            }
         }
     }
 
