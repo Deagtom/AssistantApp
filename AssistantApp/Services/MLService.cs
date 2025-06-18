@@ -2,6 +2,7 @@
 using Microsoft.ML;
 using System;
 using System.IO;
+using System.Windows;
 
 namespace AssistantApp.Services
 {
@@ -36,6 +37,7 @@ namespace AssistantApp.Services
             using (var fs = File.Create(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ModelFile)))
                 _mlContext.Model.Save(model, data.Schema, fs);
             _model = model;
+            MessageBox.Show("Модель успешно обучена!");
         }
 
         public string PredictDiagnosis(float[] featureVector)

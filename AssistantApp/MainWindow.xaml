@@ -1,6 +1,7 @@
 ﻿<Window x:Class="AssistantApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:conv="clr-namespace:AssistantApp.Converters"
         Title="Symptom Assistant"
         Height="700" Width="1100"
@@ -18,6 +19,7 @@
         <SolidColorBrush x:Key="TextBrush" Color="#FF333333"/>
         <conv:SymptomSelectionMultiConverter x:Key="SymptomSelectionMultiConverter"/>
         <conv:LocalizationMultiConverter x:Key="LocalizationMultiConverter"/>
+        <conv:LocalizationListConverter x:Key="LocalizationListConverter"/>
     </Window.Resources>
 
     <Grid>
@@ -27,15 +29,82 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Background="{StaticResource SidebarBackground}" Grid.Column="0" Margin="10">
-            <TextBlock Text="Меню" FontSize="18" Foreground="{StaticResource AccentBrush}"
-                 Margin="0,0,0,20" HorizontalAlignment="Center"/>
-            <Button Content="Диагностика" Click="NavButton_Click" Tag="0" Margin="0,4"/>
-            <Button Content="История" Click="NavButton_Click" Tag="1" Margin="0,4"/>
-            <Button Content="Административная панель" Click="NavButton_Click" Tag="2" Margin="0,4"/>
-            <Button Content="Настройки" Click="NavButton_Click" Tag="3" Margin="0,4"/>
+            <TextBlock FontSize="18" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,20" HorizontalAlignment="Center">
+                <TextBlock.Text>
+                    <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                        <Binding>
+                            <Binding.Source>
+                                <sys:String>Menu</sys:String>
+                            </Binding.Source>
+                        </Binding>
+                        <Binding Path="SelectedLanguage"/>
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+
+            <Button Click="NavButton_Click" Tag="0" Margin="0,4">
+                <TextBlock>
+                    <TextBlock.Text>
+                        <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                            <Binding>
+                                <Binding.Source>
+                                    <sys:String>TabDiagnostics</sys:String>
+                                </Binding.Source>
+                            </Binding>
+                            <Binding Path="SelectedLanguage"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </Button>
+
+            <Button Click="NavButton_Click" Tag="1" Margin="0,4">
+                <TextBlock>
+                    <TextBlock.Text>
+                        <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                            <Binding>
+                                <Binding.Source>
+                                    <sys:String>TabHistory</sys:String>
+                                </Binding.Source>
+                            </Binding>
+                            <Binding Path="SelectedLanguage"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </Button>
+
+            <Button Click="NavButton_Click" Tag="2" Margin="0,4">
+                <TextBlock>
+                    <TextBlock.Text>
+                        <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                            <Binding>
+                                <Binding.Source>
+                                    <sys:String>TabAdmin</sys:String>
+                                </Binding.Source>
+                            </Binding>
+                            <Binding Path="SelectedLanguage"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </Button>
+
+            <Button Click="NavButton_Click" Tag="3" Margin="0,4">
+                <TextBlock>
+                    <TextBlock.Text>
+                        <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                            <Binding>
+                                <Binding.Source>
+                                    <sys:String>TabSettings</sys:String>
+                                </Binding.Source>
+                            </Binding>
+                            <Binding Path="SelectedLanguage"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </Button>
         </StackPanel>
 
         <TabControl x:Name="MainTabControl" Grid.Column="1">
+
             <TabItem>
                 <ScrollViewer>
                     <Grid Margin="20">
@@ -44,7 +113,18 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Text="Диагностика" FontSize="24" Foreground="{StaticResource AccentBrush}"/>
+                        <TextBlock FontSize="24" Foreground="{StaticResource AccentBrush}">
+                            <TextBlock.Text>
+                                <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                    <Binding>
+                                        <Binding.Source>
+                                            <sys:String>TabDiagnostics</sys:String>
+                                        </Binding.Source>
+                                    </Binding>
+                                    <Binding Path="SelectedLanguage"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
 
                         <Grid Grid.Row="1" Margin="0,20,0,0">
                             <Grid.ColumnDefinitions>
@@ -54,54 +134,76 @@
 
                             <Border Background="{StaticResource PanelBackground}" CornerRadius="8" Padding="12">
                                 <StackPanel>
+
                                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                        <RadioButton Content="Выберите симптомы"
-                                 GroupName="InputMode"
-                                 IsChecked="{Binding IsSymptomMode, Mode=TwoWay}"
-                                 Margin="0,0,20,0"/>
-                                        <RadioButton Content="Свободный ввод жалоб"
-                                 GroupName="InputMode"
-                                 IsChecked="{Binding IsFreeTextMode, Mode=TwoWay}"/>
+                                        <RadioButton GroupName="InputMode" IsChecked="{Binding IsSymptomMode, Mode=TwoWay}" Margin="0,0,20,0">
+                                            <TextBlock>
+                                                <TextBlock.Text>
+                                                    <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                                        <Binding>
+                                                            <Binding.Source>
+                                                                <sys:String>ModeSelection</sys:String>
+                                                            </Binding.Source>
+                                                        </Binding>
+                                                        <Binding Path="SelectedLanguage"/>
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </RadioButton>
+                                        <RadioButton GroupName="InputMode" IsChecked="{Binding IsFreeTextMode, Mode=TwoWay}">
+                                            <TextBlock>
+                                                <TextBlock.Text>
+                                                    <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                                        <Binding>
+                                                            <Binding.Source>
+                                                                <sys:String>ModeFreeText</sys:String>
+                                                            </Binding.Source>
+                                                        </Binding>
+                                                        <Binding Path="SelectedLanguage"/>
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </RadioButton>
                                     </StackPanel>
 
-                                    <TextBlock Text="Выберите симптомы"
-                             FontSize="18"
-                             Foreground="{StaticResource AccentBrush}"/>
-                                    <TreeView ItemsSource="{Binding Categories}"
-                            Margin="0,10,0,0"
-                            IsEnabled="{Binding IsSymptomMode}">
+                                    <TextBlock FontSize="18" Foreground="{StaticResource AccentBrush}">
+                                        <TextBlock.Text>
+                                            <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                                <Binding>
+                                                    <Binding.Source>
+                                                        <sys:String>LabelSelectSymptoms</sys:String>
+                                                    </Binding.Source>
+                                                </Binding>
+                                                <Binding Path="SelectedLanguage"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+
+                                    <TreeView ItemsSource="{Binding Categories}" Margin="0,10,0,0" IsEnabled="{Binding IsSymptomMode}">
                                         <TreeView.ItemTemplate>
                                             <HierarchicalDataTemplate ItemsSource="{Binding Symptoms}">
                                                 <TextBlock>
                                                     <TextBlock.Text>
                                                         <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
                                                             <Binding Path="Name"/>
-                                                            <Binding Path="DataContext.SelectedLanguage"
-                                       RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                            <Binding Path="DataContext.SelectedLanguage" RelativeSource="{RelativeSource AncestorType=Window}"/>
                                                         </MultiBinding>
                                                     </TextBlock.Text>
                                                 </TextBlock>
                                                 <HierarchicalDataTemplate.ItemTemplate>
                                                     <DataTemplate>
-                                                        <CheckBox Command="{Binding DataContext.ToggleSymptomCommand,
-                                                       RelativeSource={RelativeSource AncestorType=Window}}"
-                                      CommandParameter="{Binding}"
-                                      IsEnabled="{Binding DataContext.IsSymptomMode,
-                                                          RelativeSource={RelativeSource AncestorType=Window}}">
+                                                        <CheckBox Command="{Binding DataContext.ToggleSymptomCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" IsEnabled="{Binding DataContext.IsSymptomMode, RelativeSource={RelativeSource AncestorType=Window}}">
                                                             <TextBlock>
                                                                 <TextBlock.Text>
                                                                     <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
                                                                         <Binding Path="Name"/>
-                                                                        <Binding Path="DataContext.SelectedLanguage"
-                                             RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                                        <Binding Path="DataContext.SelectedLanguage" RelativeSource="{RelativeSource AncestorType=Window}"/>
                                                                     </MultiBinding>
                                                                 </TextBlock.Text>
                                                             </TextBlock>
                                                             <CheckBox.IsChecked>
-                                                                <MultiBinding Mode="OneWay"
-                                              Converter="{StaticResource SymptomSelectionMultiConverter}">
-                                                                    <Binding Path="DataContext.SelectedSymptoms"
-                                           RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                                <MultiBinding Mode="OneWay" Converter="{StaticResource SymptomSelectionMultiConverter}">
+                                                                    <Binding Path="DataContext.SelectedSymptoms" RelativeSource="{RelativeSource AncestorType=Window}"/>
                                                                     <Binding/>
                                                                 </MultiBinding>
                                                             </CheckBox.IsChecked>
@@ -113,41 +215,68 @@
                                     </TreeView>
 
                                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                        <TextBlock Text="Интенсивность боли:" VerticalAlignment="Center"/>
-                                        <Slider Minimum="0"
-                            Maximum="10"
-                            Value="5"
-                            Width="150"
-                            Margin="10,0,0,0"
-                            IsEnabled="{Binding IsSymptomMode}"/>
+                                        <TextBlock VerticalAlignment="Center">
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                                    <Binding>
+                                                        <Binding.Source>
+                                                            <sys:String>LabelPainIntensity</sys:String>
+                                                        </Binding.Source>
+                                                    </Binding>
+                                                    <Binding Path="SelectedLanguage"/>
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <Slider Minimum="0" Maximum="10" Value="5" Width="150" Margin="10,0,0,0" IsEnabled="{Binding IsSymptomMode}"/>
                                     </StackPanel>
 
                                     <StackPanel Margin="0,10,0,0">
-                                        <TextBlock Text="Свободный ввод жалоб"
-                               FontSize="18"
-                               Foreground="{StaticResource AccentBrush}"/>
-                                        <TextBox Height="60"
-                             TextWrapping="Wrap"
-                             Margin="0,6,0,0"
-                             Text="{Binding FreeTextComplaint}"
-                             IsEnabled="{Binding IsFreeTextMode}"/>
+                                        <TextBlock FontSize="18" Foreground="{StaticResource AccentBrush}">
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                                    <Binding>
+                                                        <Binding.Source>
+                                                            <sys:String>LabelFreeText</sys:String>
+                                                        </Binding.Source>
+                                                    </Binding>
+                                                    <Binding Path="SelectedLanguage"/>
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <TextBox Height="60" TextWrapping="Wrap" Margin="0,6,0,0" Text="{Binding FreeTextComplaint}" IsEnabled="{Binding IsFreeTextMode}"/>
                                     </StackPanel>
 
-                                    <Button Content="Предсказать"
-                          Margin="0,20,0,0"
-                          Command="{Binding PredictCommand}"/>
+                                    <Button Margin="0,20,0,0" Command="{Binding PredictCommand}">
+                                        <TextBlock>
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                                    <Binding>
+                                                        <Binding.Source>
+                                                            <sys:String>ButtonPredict</sys:String>
+                                                        </Binding.Source>
+                                                    </Binding>
+                                                    <Binding Path="SelectedLanguage"/>
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                    </Button>
                                 </StackPanel>
                             </Border>
-
-                            <Border Background="{StaticResource PanelBackground}"
-                      CornerRadius="8"
-                      Padding="12"
-                      Margin="20,0,0,0"
-                      Grid.Column="1">
+                            
+                            <Border Background="{StaticResource PanelBackground}" CornerRadius="8" Padding="12" Margin="20,0,0,0" Grid.Column="1">
                                 <StackPanel>
-                                    <TextBlock Text="Возможные диагнозы"
-                             FontSize="18"
-                             Foreground="{StaticResource AccentBrush}"/>
+                                    <TextBlock FontSize="18" Foreground="{StaticResource AccentBrush}">
+                                        <TextBlock.Text>
+                                            <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                                <Binding>
+                                                    <Binding.Source>
+                                                        <sys:String>LabelPossibleDiagnoses</sys:String>
+                                                    </Binding.Source>
+                                                </Binding>
+                                                <Binding Path="SelectedLanguage"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>Ы
                                     <ItemsControl ItemsSource="{Binding DiagnosisProbabilities}" Margin="0,10,0,0">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -157,56 +286,206 @@
                                                             <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
                                                                 <Binding Path="Name"/>
                                                                 <Binding Path="DataContext.SelectedLanguage"
-                                         RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                                         RelativeSource="{RelativeSource AncestorType=Window}"/>
                                                             </MultiBinding>
                                                         </TextBlock.Text>
                                                     </TextBlock>
-                                                    <TextBlock Text="{Binding Probability, StringFormat={}{0:P0}}"
-                                     Width="50"
-                                     VerticalAlignment="Center"/>
+
+                                                    <TextBlock Width="50"
+                                                               VerticalAlignment="Center"
+                                                               Text="{Binding Probability, StringFormat={}{0:P0}, Mode=OneWay}"/>
+
                                                     <ProgressBar Minimum="0"
-                                       Maximum="1"
-                                       Value="{Binding Probability, Mode=OneWay}"
-                                       Height="10"
-                                       Width="200"
-                                       Margin="10,0,0,0"/>
+                                                                 Maximum="1"
+                                                                 Height="10"
+                                                                 Width="200"
+                                                                 Margin="10,0,0,0"
+                                                                 Value="{Binding Probability, Mode=OneWay}"/>
                                                 </StackPanel>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
-                                    <Button Content="Сохранить"
-                          Margin="0,20,0,0"
-                          Command="{Binding SaveUsageCommand}"/>
+                                    <Button Margin="0,20,0,0" Command="{Binding SaveUsageCommand}">
+                                        <TextBlock>
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                                    <Binding>
+                                                        <Binding.Source>
+                                                            <sys:String>ButtonSave</sys:String>
+                                                        </Binding.Source>
+                                                    </Binding>
+                                                    <Binding Path="SelectedLanguage"/>
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                    </Button>
                                 </StackPanel>
                             </Border>
-
                         </Grid>
                     </Grid>
                 </ScrollViewer>
             </TabItem>
 
+            <DataGrid AutoGenerateColumns="False"
+          Margin="0,20,0,0"
+          ItemsSource="{Binding UsageRecords}">
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding EventTime}">
+                        <DataGridTextColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                            <Binding>
+                                                <Binding.Source>
+                                                    <sys:String>HeaderDate</sys:String>
+                                                </Binding.Source>
+                                            </Binding>
+                                            <Binding Path="DataContext.SelectedLanguage"
+                                         RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTextColumn.HeaderTemplate>
+                    </DataGridTextColumn>
+
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                            <Binding>
+                                                <Binding.Source>
+                                                    <sys:String>HeaderSymptoms</sys:String>
+                                                </Binding.Source>
+                                            </Binding>
+                                            <Binding Path="DataContext.SelectedLanguage"
+                                         RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.HeaderTemplate>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock TextWrapping="Wrap">
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{StaticResource LocalizationListConverter}">
+                                            <Binding Path="Symptoms"/>
+                                            <Binding Path="DataContext.SelectedLanguage"
+                                         RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                            <Binding>
+                                                <Binding.Source>
+                                                    <sys:String>HeaderResult</sys:String>
+                                                </Binding.Source>
+                                            </Binding>
+                                            <Binding Path="DataContext.SelectedLanguage"
+                                         RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.HeaderTemplate>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                            <Binding Path="ResultName"/>
+                                            <Binding Path="DataContext.SelectedLanguage"
+                                         RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Width="80">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Command="{Binding ExportCommand}">
+                                    <TextBlock>
+                                        <TextBlock.Text>
+                                            <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                                <Binding>
+                                                    <Binding.Source>
+                                                        <sys:String>ButtonPDF</sys:String>
+                                                    </Binding.Source>
+                                                </Binding>
+                                                <Binding Path="DataContext.SelectedLanguage"
+                                             RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
             <TabItem>
                 <ScrollViewer>
                     <StackPanel Margin="20">
-                        <TextBlock Text="История обращений"
-                       FontSize="24"
-                       Foreground="{StaticResource AccentBrush}"/>
-                        <DataGrid AutoGenerateColumns="False"
-                      Margin="0,20,0,0"
-                      ItemsSource="{Binding UsageRecords}">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Дата" Binding="{Binding EventTime}"/>
-                                <DataGridTextColumn Header="Симптомы" Binding="{Binding Symptoms}"/>
-                                <DataGridTextColumn Header="Результат" Binding="{Binding ResultName}"/>
-                                <DataGridTemplateColumn>
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Button Content="PDF" Command="{Binding ExportCommand}"/>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                        <TextBlock FontSize="24" Foreground="{StaticResource AccentBrush}">
+                            <TextBlock.Text>
+                                <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                    <Binding>
+                                        <Binding.Source>
+                                            <sys:String>TabAdmin</sys:String>
+                                        </Binding.Source>
+                                    </Binding>
+                                    <Binding Path="SelectedLanguage"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+
+                        <Button Click="LoadFromFile_Click" Margin="0,20,0,0">
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                        <Binding>
+                                            <Binding.Source>
+                                                <sys:String>ButtonLoadFile</sys:String>
+                                            </Binding.Source>
+                                        </Binding>
+                                        <Binding Path="SelectedLanguage"/>
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </Button>
+
+                        <Button Command="{Binding TrainModelCommand}" Margin="0,10,0,0">
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                        <Binding>
+                                            <Binding.Source>
+                                                <sys:String>ButtonTrainModel</sys:String>
+                                            </Binding.Source>
+                                        </Binding>
+                                        <Binding Path="SelectedLanguage"/>
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </Button>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
@@ -214,26 +493,32 @@
             <TabItem>
                 <ScrollViewer>
                     <StackPanel Margin="20">
-                        <TextBlock Text="Административная панель"
-                       FontSize="24"
-                       Foreground="{StaticResource AccentBrush}"/>
-                        <Button Content="Загрузить файл симптомов"
-                    Click="LoadFromFile_Click"
-                    Margin="0,20,0,0"/>
-                        <Button Content="Обучить модель"
-                    Command="{Binding TrainModelCommand}"
-                    Margin="0,10,0,0"/>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
+                        <TextBlock FontSize="24" Foreground="{StaticResource AccentBrush}">
+                            <TextBlock.Text>
+                                <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                    <Binding>
+                                        <Binding.Source>
+                                            <sys:String>TabSettings</sys:String>
+                                        </Binding.Source>
+                                    </Binding>
+                                    <Binding Path="SelectedLanguage"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
 
-            <TabItem>
-                <ScrollViewer>
-                    <StackPanel Margin="20">
-                        <TextBlock Text="Настройки"
-                       FontSize="24"
-                       Foreground="{StaticResource AccentBrush}"/>
-                        <TextBlock Text="Язык" Margin="0,20,0,0"/>
+                        <TextBlock Margin="0,20,0,0">
+                            <TextBlock.Text>
+                                <MultiBinding Converter="{StaticResource LocalizationMultiConverter}">
+                                    <Binding>
+                                        <Binding.Source>
+                                            <sys:String>LabelLanguage</sys:String>
+                                        </Binding.Source>
+                                    </Binding>
+                                    <Binding Path="SelectedLanguage"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+
                         <ComboBox ItemsSource="{Binding Languages}"
                       SelectedItem="{Binding SelectedLanguage}"
                       Width="120"/>
